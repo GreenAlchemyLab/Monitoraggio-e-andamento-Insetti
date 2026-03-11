@@ -1,18 +1,24 @@
-🛠️ Analisi Tecnica di Sistema: Debriefing Operativo
-1. Prompt Engineering & Identificazione Tassonomica
+## 🛠️ Analisi Tecnica di Sistema EntoVision v2.1
+
+### 1. Prompt Engineering & Identificazione Tassonomica
 La logica di identificazione si basa sulla scomposizione dei tratti morfologici distintivi dei target rispetto al materiale inerte.
-•	Identificazione Bemisia tabaci: Il sistema ricerca pixel ad alta riflettanza con saturazione cromatica bianca, analizzando la postura alare a "V" (tetto) tipica degli adulti. Vengono escluse le forme ovali traslucide prive di ali, classificate come neanidi per il monitoraggio fogliare.
-•	Identificazione Aphididae: La ricerca si focalizza su silhouette lanceolate di colore scuro (forme alate). Il sistema distingue gli afidi dai ditteri sciaridi analizzando la lunghezza delle appendici e la forma dell'addome, isolando i sifoni quando la risoluzione lo permette.
-•	Filtro "Rumore" (Terra/Detriti): Le istruzioni operative impongono lo scarto di particelle con bordi irregolari e texture opaca, tipiche del materiale pedologico sollevato dall'irrigazione.
-2. Computer Vision Logic: Gestione Interferenze
-Il trattamento delle immagini avviene tramite una gerarchia di filtri logici per massimizzare il rapporto segnale/rumore (SNR).
-•	Soppressione dei Riflessi: Il sistema analizza i gradienti di luminanza sulla superficie plastica della trappola Glutor. I riflessi vengono identificati come aree ad alta intensità prive di struttura biologica definita, venendo ignorati nel conteggio.
-•	Filtro di Trasparenza (Z-Axis Depth): Per le trappole fotocromatiche, il sistema esegue una discriminazione basata sulla messa a fuoco (bokeh). Le ombre sfuocate provenienti dal lato posteriore della trappola vengono filtrate per evitare duplicazioni del dato cumulativo.
-•	Discriminazione dei Non-Target: Grossi ditteri (tipulidi) o lepidotteri erratici vengono classificati come "biomassa non-target", impedendo che il loro ingombro visivo alteri la densità stimata dei target primari.
-3. Data Processing & Pipeline Statistica
-Il passaggio dal dato visivo alla metrica decisionale segue una pipeline rigorosa per garantire la confrontabilità scientifica.
-•	Ancoraggio Temporale (DAT): Ogni rilievo viene mappato rispetto alla data di trapianto (19/12/2025), normalizzando la progressione dell'infestazione sui Days After Transplant.
-•	Calcolo del Delta e Trend:
-o	Delta: $Catture_{T1} - Catture_{T0}$.
-o	Media Settimanale: Calcolata dividendo il Delta per il numero di giorni trascorsi tra i rilievi e moltiplicando per 7, fornendo una proiezione della pressione d'attacco.
-•	Correlazione Trappola-Foglia: Il sistema incrocia i dati delle Glutor con il grado di infestazione fogliare (scala 0-4), validando il dato di volo con l'effettivo insediamento stanziale sulla coltura.
+
+* **Identificazione Bemisia tabaci:** Il sistema ricerca pixel ad alta riflettanza con saturazione cromatica bianca, analizzando la postura alare a "V" (tetto) tipica degli adulti. Vengono escluse le neanidi traslucide per il monitoraggio fogliare stanziale.
+* **Identificazione Aphididae:** Ricerca di silhouette lanceolate scure (forme alate). Il sistema distingue gli afidi dai ditteri sciaridi analizzando la lunghezza delle appendici e isolando i sifoni addominali.
+* **Filtro "Rumore" (Terra/Detriti):** Scarto automatico di particelle con bordi irregolari e texture opaca, tipiche del materiale sollevato dall'irrigazione.
+
+### 2. Computer Vision Logic: Gestione Interferenze
+Gerarchia di filtri logici per massimizzare il rapporto segnale/rumore (SNR).
+
+* **Soppressione dei Riflessi:** Analisi dei gradienti di luminanza sulle trappole Glutor. I riflessi vengono identificati come aree ad alta intensità prive di struttura biologica e ignorati nel conteggio.
+* **Filtro di Trasparenza (Z-Axis Depth):** Discriminazione basata sulla messa a fuoco (bokeh). Le ombre sfuocate sul lato posteriore della trappola vengono filtrate per evitare duplicazioni del dato.
+* **Discriminazione dei Non-Target:** Insetti di grandi dimensioni (tipulidi, lepidotteri) vengono classificati come "biomassa non-target", impedendo alterazioni della densità stimata.
+
+### 3. Data Processing & Pipeline Statistica
+Trasformazione del dato visivo in metrica decisionale tramite R.
+
+* **Ancoraggio Temporale (DAT):** Ogni rilievo è mappato rispetto alla data di trapianto (19/12/2025), normalizzando la progressione sui *Days After Transplant*.
+* **Calcolo del Delta e Trend:**
+    * **Delta ($\Delta$):** $Catture_{T_n} - Catture_{T_{n-1}}$ per isolare la pressione di volo specifica.
+    * **Efficacia (Abbott):** Quantificazione dell'abbattimento della popolazione nelle parcelle Oikos + BlackJak rispetto al testimone.
+* **Correlazione Trappola-Foglia:** Incrocio dei dati Glutor con il grado di infestazione fogliare (scala 0-4), validando il volo con l'effettivo insediamento sulla coltura.
