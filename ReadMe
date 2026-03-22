@@ -1,24 +1,33 @@
-## 🛠️ Analisi Tecnica di Sistema EntoVision v2.1
+# 🛠️ Analisi Tecnica di Sistema: EntoVision v2.5
+> **The Learning Update**: Evoluzione della pipeline di identificazione e gestione dell'incertezza.
 
-### 1. Prompt Engineering & Identificazione Tassonomica
-La logica di identificazione si basa sulla scomposizione dei tratti morfologici distintivi dei target rispetto al materiale inerte.
+## 1. Feature Extraction & Identificazione Biometrica
+La pipeline identifica i target tramite scomposizione morfologica, isolando il segnale biologico dal rumore di fondo cromatico.
 
-* **Identificazione Bemisia tabaci:** Il sistema ricerca pixel ad alta riflettanza con saturazione cromatica bianca, analizzando la postura alare a "V" (tetto) tipica degli adulti. Vengono escluse le neanidi traslucide per il monitoraggio fogliare stanziale.
-* **Identificazione Aphididae:** Ricerca di silhouette lanceolate scure (forme alate). Il sistema distingue gli afidi dai ditteri sciaridi analizzando la lunghezza delle appendici e isolando i sifoni addominali.
-* **Filtro "Rumore" (Terra/Detriti):** Scarto automatico di particelle con bordi irregolari e texture opaca, tipiche del materiale sollevato dall'irrigazione.
+* **Identificazione *Bemisia tabaci*:** Analisi di pixel ad alta riflettanza con saturazione bianca. Il sistema valida la postura alare angolare a "V" (tetto) degli adulti.
+* **Identificazione *Aphididae*:** Focus su silhouette lanceolate scure (forme alate). Discriminazione dai ditteri sciaridi tramite analisi delle appendici e isolamento dei sifoni addominali.
+* **Texture Mapping (v2.5):** Il sistema distingue l'ala cerosa opaca dei target dagli *specular highlights* (riflessi di colla/acqua) analizzando la coerenza del gradiente luminoso.
 
-### 2. Computer Vision Logic: Gestione Interferenze
-Gerarchia di filtri logici per massimizzare il rapporto segnale/rumore (SNR).
+---
 
-* **Soppressione dei Riflessi:** Analisi dei gradienti di luminanza sulle trappole Glutor. I riflessi vengono identificati come aree ad alta intensità prive di struttura biologica e ignorati nel conteggio.
-* **Filtro di Trasparenza (Z-Axis Depth):** Discriminazione basata sulla messa a fuoco (bokeh). Le ombre sfuocate sul lato posteriore della trappola vengono filtrate per evitare duplicazioni del dato.
-* **Discriminazione dei Non-Target:** Insetti di grandi dimensioni (tipulidi, lepidotteri) vengono classificati come "biomassa non-target", impedendo alterazioni della densità stimata.
+## 2. Probabilistic Computer Vision: Gestione dell'Incertezza
+Evoluzione dal filtraggio statico a una stima probabilistica basata sul contesto ambientale.
 
-### 3. Data Processing & Pipeline Statistica
-Trasformazione del dato visivo in metrica decisionale tramite R.
+* **Confidence Thresholding ($S_{conf}$):** Per ogni frame viene assegnato un punteggio di confidenza. Se $S_{conf} < 85\%$, il target viene scartato come "Sospetto Falso Positivo" e isolato per l'auto-apprendimento.
+* **Hard Negative Mining:** Utilizzo dei frame scartati per affinare i filtri morfologici. Il sistema "impara" dagli errori passati (es. detriti scambiati per target) per ridurre l'errore sistematico.
+* **Context-Aware Filtering:** Calibrazione dinamica dei filtri in base ai dati ambientali (es. elevata bagnatura o luce zenitale), aumentando lo scetticismo del sistema verso i riflessi speculari.
 
-* **Ancoraggio Temporale (DAT):** Ogni rilievo è mappato rispetto alla data di trapianto (19/12/2025), normalizzando la progressione sui *Days After Transplant*.
-* **Calcolo del Delta e Trend:**
-    * **Delta ($\Delta$):** $Catture_{T_n} - Catture_{T_{n-1}}$ per isolare la pressione di volo specifica.
-    * **Efficacia (Abbott):** Quantificazione dell'abbattimento della popolazione nelle parcelle Oikos + BlackJak rispetto al testimone.
-* **Correlazione Trappola-Foglia:** Incrocio dei dati Glutor con il grado di infestazione fogliare (scala 0-4), validando il volo con l'effettivo insediamento sulla coltura.
+---
+
+## 3. Data Processing & Pipeline Statistica
+Trasformazione del dato visivo in metrica agronomica tramite **R/ggplot2**.
+
+### 📊 Logica dell'Evoluzione (v2.5)
+La certezza del dato è calcolata asintoticamente tramite la formula:
+
+$$P(Target) = \frac{\sum (Tratti_{Bio} \cdot Peso_{Context})}{Texture_{Noise} + \sigma_{Reflectance}}$$
+
+### 📈 Visualizzazione & Analisi
+* **Ancoraggio Temporale (DAT):** Normalizzazione cronologica basata sulla data di trapianto (19/12/2025).
+* **Offset Dinamico:** Implementazione di un offset verticale ($\pm 0.04$) nei grafici a scalino (`geom_step`) per garantire la leggibilità delle tesi con indici di infestazione sovrapponibili.
+* **Efficacia di Abbott:** Quantificazione della protezione della tesi rispetto alla pressione ambientale rilevata dalle "Sentinelle" esterne.
