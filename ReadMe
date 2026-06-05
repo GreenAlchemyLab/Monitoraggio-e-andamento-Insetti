@@ -1,33 +1,34 @@
-# 🛠️ Analisi Tecnica di Sistema: EntoVision v2.5
-> **The Learning Update**: Evoluzione della pipeline di identificazione e gestione dell'incertezza.
+# 🛠️ EntoVision v3.0
 
-## 1. Feature Extraction & Identificazione Biometrica
-La pipeline identifica i target tramite scomposizione morfologica, isolando il segnale biologico dal rumore di fondo cromatico.
+> **The Multimodal Update**: Transizione verso Large Multimodal Models (LMM), validazione ibrida (HITL) e data processing in Python.
 
-* **Identificazione *Bemisia tabaci*:** Analisi di pixel ad alta riflettanza con saturazione bianca. Il sistema valida la postura alare angolare a "V" (tetto) degli adulti.
-* **Identificazione *Aphididae*:** Focus su silhouette lanceolate scure (forme alate). Discriminazione dai ditteri sciaridi tramite analisi delle appendici e isolamento dei sifoni addominali.
-* **Texture Mapping (v2.5):** Il sistema distingue l'ala cerosa opaca dei target dagli *specular highlights* (riflessi di colla/acqua) analizzando la coerenza del gradiente luminoso.
+## 1. Feature Extraction & Identificazione Tassonomica
+
+L'algoritmo analizza le macrofotografie elaborando il prompt visivo e isolando il segnale biologico dal "rumore" ambientale (detriti, polvere, insetti non bersaglio).
+
+* **Identificazione Aleurodidi (*Trialeurodes vaporariorum* e *Bemisia tabaci*):** Scansione di cluster di pixel ad alta riflettanza con saturazione bianca. Il sistema mappa la morfologia alare a "tetto" e discrimina gli adulti dalle mute vuote.
+* **Identificazione *Aphididae*:** Focus su silhouette lanceolate scure (forme alate). Discriminazione dai ditteri muscidi e sciaridi tramite analisi strutturale (dimensioni, appendici, sifoni).
+* **Identificazione *Liriomyza* spp. (Mosca Minatrice):** Rilevamento basato sul pattern cromatico contrastante (micro-ditteri neri con marcature scutellari e pleuriche gialle).
+* **Noise Reduction Avanzata:** Il sistema distingue i target biologici dagli *specular highlights* (riflessi di colla fresca o acqua) e dai detriti terrosi analizzando la coerenza del gradiente luminoso e le ombre di contatto.
 
 ---
 
-## 2. Probabilistic Computer Vision: Gestione dell'Incertezza
-Evoluzione dal filtraggio statico a una stima probabilistica basata sul contesto ambientale.
+## 2. Architettura LMM e Validazione ibrida (HITL)
 
-* **Confidence Thresholding ($S_{conf}$):** Per ogni frame viene assegnato un punteggio di confidenza. Se $S_{conf} < 85\%$, il target viene scartato come "Sospetto Falso Positivo" e isolato per l'auto-apprendimento.
-* **Hard Negative Mining:** Utilizzo dei frame scartati per affinare i filtri morfologici. Il sistema "impara" dagli errori passati (es. detriti scambiati per target) per ridurre l'errore sistematico.
-* **Context-Aware Filtering:** Calibrazione dinamica dei filtri in base ai dati ambientali (es. elevata bagnatura o luce zenitale), aumentando lo scetticismo del sistema verso i riflessi speculari.
+Evoluzione dal filtraggio statico a un'analisi di contesto multimodale gestita tramite supervisione umana.
+
+* **Human-In-The-Loop (HITL):** Introduzione di un protocollo di validazione ibrida (AI + Operatore). Il Tecnico Sperimentale agisce come filtro di supervisione per la bonifica dei falsi positivi sulle trappole ad alta saturazione, costruendo una *ground truth* in continuo aggiornamento.
+* **Context-Aware Filtering:** Il sistema tara la sensibilità di rilevamento interpretando le anomalie visive, aumentando lo scetticismo ottico nelle aree della trappola con un'alta densità di sovrapposizione entomologica.
+* **Gestione della Confidenza:** Il grado di certezza visiva viene ora calibrato con un peso assegnato dalla revisione umana.
 
 ---
 
 ## 3. Data Processing & Pipeline Statistica
-Trasformazione del dato visivo in metrica agronomica tramite **R/ggplot2**.
 
-### 📊 Logica dell'Evoluzione (v2.5)
-La certezza del dato è calcolata asintoticamente tramite la formula:
-
-$$P(Target) = \frac{\sum (Tratti_{Bio} \cdot Peso_{Context})}{Texture_{Noise} + \sigma_{Reflectance}}$$
+Migrazione completa dello stack di analisi dati su **Python (Pandas, Matplotlib, Seaborn)** per la generazione in real-time di *insight* agronomici.
 
 ### 📈 Visualizzazione & Analisi
-* **Ancoraggio Temporale (DAT):** Normalizzazione cronologica basata sulla data di trapianto (19/12/2025).
-* **Offset Dinamico:** Implementazione di un offset verticale ($\pm 0.04$) nei grafici a scalino (`geom_step`) per garantire la leggibilità delle tesi con indici di infestazione sovrapponibili.
-* **Efficacia di Abbott:** Quantificazione della protezione della tesi rispetto alla pressione ambientale rilevata dalle "Sentinelle" esterne.
+
+* **Ancoraggio Temporale (DAT):** Normalizzazione cronologica basata sulla data di trapianto per il tracciamento delle generazioni.
+* **Mapping Spaziale dello Spillover:** Strutturazione dell'output in grafici a barre aggregati e curve cumulative lineari per individuare le falle nelle barriere fitoiatriche (confronto diretto tra Testimone, Sentinelle e Tesi Trattate).
+* **Quantificazione dell'Efficacia:** Calcolo sistematico della protezione garantita dalla tesi in prova tramite Indice di Abbott semplificato per le medie, calcolato in tempo reale dal server Python.
